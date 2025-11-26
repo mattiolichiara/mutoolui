@@ -1,3 +1,5 @@
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mutoolui/widgets/general_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +27,8 @@ class _Menu extends State<Menu> {
   late List<MenuItem> _allButtons;
   late List<MenuItem> _orderedButtons;
   static const String _favoriteKey = 'muToolFavorite';
+  String? _pdfPath;
+  bool _isDragging = false;
 
   @override
   void initState() {
@@ -51,6 +55,17 @@ class _Menu extends State<Menu> {
     ];
     _orderedButtons = List.from(_allButtons);
     _loadAndRestoreFavorite();
+  }
+
+  void handleFileLoaded(String path) {
+    if (!path.toLowerCase().endsWith('.pdf')) {
+      debugPrint('File Not Supported. Load .pfd Files Only.');
+      return;
+    }
+
+    setState(() {
+      _pdfPath = path;
+    });
   }
 
   Future<void> _loadAndRestoreFavorite() async {
@@ -154,14 +169,52 @@ class _Menu extends State<Menu> {
     );
   }
 
+  void pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false,
+    );
+
+    if (result != null) {
+      String? path = result.files.single.path;
+
+      if (path != null) {
+        handleFileLoaded(path);
+      }
+    } else {
+      debugPrint('No file selected');
+    }
+  }
+
   Widget loadFile(Size size) {
-    return Column(
+    return (_pdfPath == null) ?
+    Column(
       children: [
-        Center(child: Text("Load a pdf", style: TextStyle(fontWeight: FontWeight.w300, fontSize: size.width*(Constants.fontSize*1.2)),),),
-        SizedBox(height: size.width*Constants.spacing/2,),
+        Center(child: Text("Load a pdf", style: TextStyle(
+            fontWeight: FontWeight.w300,
+            fontSize: size.width * (Constants.fontSize * 1.2)),),),
+        SizedBox(height: size.width * Constants.spacing / 2,),
         Center(
-          child: GeneralButton(value: "Upload", infoActive: false, hasIcon: Icons.cloud_upload_rounded,),
+          child: GeneralButton(value: "Upload",
+            infoActive: false,
+            hasIcon: Icons.cloud_upload_rounded,
+            onPressed: pickFile,
+          ),
         ),
+      ],
+    ) :
+    Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      spacing: size.width*Constants.spacing/4,
+      children: [
+        Text("File Loaded: $_pdfPath", style: TextStyle(color: Colors.white)),
+        IconButton(onPressed: () {
+          setState(() {
+            _pdfPath = null;
+          });
+        }, icon: Icon(Icons.delete, color: Colors.white, size: size.width*Constants.iconsSize*1.5,),)
       ],
     );
   }
@@ -179,6 +232,15 @@ class _Menu extends State<Menu> {
     );
   }
 
+  Widget scaffoldBody(Size size) {
+    return Padding(
+      padding: EdgeInsets.all(size.width * Constants.spacing / 2),
+      child: SingleChildScrollView(
+        child: content(size),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -190,14 +252,53 @@ class _Menu extends State<Menu> {
           style: TextStyle(
               color: Colors.white70,
               fontWeight: FontWeight.w300,
-              fontSize: size.width*Constants.fontSize*1.5
+              fontSize: size.width * Constants.fontSize * 1.5
           ),),
       ),
-      body: Padding(
-          padding: EdgeInsets.all(size.width*Constants.spacing/2),
-          child: SingleChildScrollView(
-            child: content(size),
-          ),
+      body: DropTarget(
+        onDragEntered: (drag) {
+          setState(() {
+            _isDragging = true;
+          });
+        },
+        onDragExited: (drag) {
+          setState(() {
+            _isDragging = false;
+          });
+        },
+        onDragDone: (drag) {
+          setState(() {
+            _isDragging = false;
+            if (drag.files.isNotEmpty) {
+              handleFileLoaded(drag.files.first.path);
+            }
+          });
+        },
+        child: Stack(
+          children: [
+            scaffoldBody(size),
+            _isDragging ?
+                Container(
+                  width: size.width,
+                  height: size.height,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.lightBlueAccent.withAlpha(50), width: 2),
+                    color: Color(0xff263A50).withAlpha(170),
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: Row(
+                    spacing: size.width*0.01,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.all_inbox_rounded, color: Colors.white, size: size.width*Constants.iconsSize*2.5,),
+                      Text("Drag Here to Upload", style: TextStyle(color: Colors.white, fontSize: size.width*Constants.fontSize*3, fontWeight: FontWeight.w300),),
+                    ],
+                  ),
+                )
+                : Container(),
+          ],
+        ),
       ),
     );
   }

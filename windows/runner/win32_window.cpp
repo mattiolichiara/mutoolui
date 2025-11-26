@@ -146,6 +146,8 @@ bool Win32Window::Create(const std::wstring& title,
 
   UpdateTheme(window);
 
+  ::DragAcceptFiles(window_handle_, TRUE);
+
   return OnCreate();
 }
 
