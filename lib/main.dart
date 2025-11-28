@@ -16,8 +16,9 @@ class MyApp extends StatelessWidget {
       title: 'MuToolUI',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blueAccent,
+            seedColor: const Color(0xff19283b),
             brightness: Brightness.dark,
+            primary: Colors.blue
         ),
       ),
       home: const Menu(),

@@ -1,11 +1,13 @@
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mutoolui/widgets/general_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/constants.dart';
 import '../widgets/general_dialog.dart';
+import '../widgets/pdf_preview_dialog.dart';
 
 class MenuItem {
   final String value;
@@ -57,9 +59,26 @@ class _Menu extends State<Menu> {
     _loadAndRestoreFavorite();
   }
 
+  void errorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_rounded, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w300, fontSize: MediaQuery.of(context).size.width*Constants.fontSize),)),
+          ],
+        ),
+        backgroundColor: Color(0xff19283b),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
   void handleFileLoaded(String path) {
     if (!path.toLowerCase().endsWith('.pdf')) {
-      debugPrint('File Not Supported. Load .pfd Files Only.');
+      //debugPrint('File Not Supported. Load .pfd Files Only.');
+      errorSnackBar('File Not Supported. Load PDF Files Only.');
       return;
     }
 
@@ -123,6 +142,16 @@ class _Menu extends State<Menu> {
     );
   }
 
+  void showPreviewDialog(BuildContext context, String value) {
+    showDialog(
+      context: context,
+      builder: (context) => PdfPreviewDialog(
+        pdfPath: _pdfPath,
+      ),
+      barrierDismissible: true,
+    );
+  }
+
   Widget buttonWrapper(Size size) {
     return Padding(
       padding: EdgeInsets.all(20.0),
@@ -130,17 +159,9 @@ class _Menu extends State<Menu> {
         duration: const Duration(milliseconds: 550),
 
         transitionBuilder: (Widget child, Animation<double> animation) {
-          final slideAnimation = Tween<Offset>(
-            begin: const Offset(0.0, -0.2),
-            end: Offset.zero,
-          ).animate(animation);
-
           return FadeTransition(
             opacity: animation,
-            child: SlideTransition(
-              position: slideAnimation,
-              child: child,
-            ),
+            child: child,
           );
         },
 
@@ -184,7 +205,35 @@ class _Menu extends State<Menu> {
       }
     } else {
       debugPrint('No file selected');
+      //errorSnackBar('No File Selected.');
     }
+  }
+
+  Widget loadedText(Size size) {
+    return Row(
+      children: [
+        Text("File Loaded: ", style: TextStyle(fontSize: size.width * Constants.fontSize, fontWeight: FontWeight.w300,),),
+
+        Tooltip(
+          message: _pdfPath!,
+          decoration: BoxDecoration(
+            color: const Color(0xff19283b),
+            borderRadius: BorderRadius.circular(5),
+          ),
+          textStyle: TextStyle(fontSize: size.width * Constants.fontSize/1.3, fontWeight: FontWeight.w300, color: Colors.white),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: size.width * 0.15,
+              minWidth: 0,
+            ),
+            child: Text(_pdfPath!, overflow: TextOverflow.ellipsis, maxLines: 1,
+              style: TextStyle(fontStyle: FontStyle.italic,
+                  fontSize: size.width * Constants.fontSize,
+                  fontWeight: FontWeight.w300),),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget loadFile(Size size) {
@@ -207,14 +256,15 @@ class _Menu extends State<Menu> {
     Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
-      spacing: size.width*Constants.spacing/4,
       children: [
-        Text("File Loaded: $_pdfPath", style: TextStyle(color: Colors.white)),
+        IconButton(icon: SvgPicture.asset("assets/images/pdf-svgrepo-com.svg", width: size.width*Constants.iconsSize), onPressed: () {showPreviewDialog(context, _pdfPath!);},),
+        loadedText(size),
+        SizedBox(width: size.width*0.003,),
         IconButton(onPressed: () {
           setState(() {
             _pdfPath = null;
           });
-        }, icon: Icon(Icons.delete, color: Colors.white, size: size.width*Constants.iconsSize*1.5,),)
+        }, icon: Icon(Icons.close, color: Colors.red.shade400, size: size.width*Constants.iconsSize,),)
       ],
     );
   }
