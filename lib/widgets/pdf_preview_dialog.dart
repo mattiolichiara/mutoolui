@@ -42,6 +42,7 @@ class _PdfPreviewDialog extends State<PdfPreviewDialog> {
   //   super.initState();
   //   //_loadPdfSize();
   // }@TODO ridimensionare il dialog dopo l'inserimento della password corretta + loading per evitare che si veda la finestra di fallback
+  //@TODO gestire la password in modifica
 
   @override
   void dispose() {

@@ -3,11 +3,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mutoolui/widgets/general_button.dart';
+import 'package:mutoolui/widgets/operations_dialog.dart';
+import 'package:mutoolui/widgets/run_js_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/constants.dart';
 import '../widgets/general_dialog.dart';
 import '../widgets/pdf_preview_dialog.dart';
+import '../widgets/poster_dialog.dart';
 
 class MenuItem {
   final String value;
@@ -45,12 +48,12 @@ class _Menu extends State<Menu> {
       MenuItem(value: "Info - Show Information About PDF Resources", dialogOption: Constants.infoOptions),
       MenuItem(value: "Merge - Merge Pages from Multiple PDF Sources", dialogOption: Constants.mergeOptions),
       MenuItem(value: "Pages - Show Information About PDF Pages", dialogOption: Constants.pagesOptions),
-      MenuItem(value: "Poster - Split Large Page into Many Tiles", dialogOption: Constants.posterOptions),
+      MenuItem(value: "Poster - Split Large Page into Many Tiles", dialogOption: Constants.posterOptions, ),
       MenuItem(value: "Recolor - Change Colorspace of PDF Document", dialogOption: Constants.recolorOptions),
       MenuItem(value: "Sign - Manipulate PDF Digital Signatures", dialogOption: Constants.signOptions),
       MenuItem(value: "Trim - Trim PDF Page Contents", dialogOption: Constants.trimOptions),
       MenuItem(value: "Bake - Bake PDF Form into Static Content", dialogOption: Constants.bakeOptions),
-      MenuItem(value: "Run - Run Javascript", dialogOption: null, infoActive: false), // Nessun dialogo info
+      MenuItem(value: "Run - Run Javascript", dialogOption: null, infoActive: false),
       MenuItem(value: "Show - Show Internal PDF Objects", dialogOption: Constants.showOptions),
       MenuItem(value: "Audit - Produce Usage Stats from PDF Files", dialogOption: Constants.auditOptions),
       MenuItem(value: "Barcode - Encode/Decode Barcodes", dialogOption: Constants.barcodeOptions),
@@ -142,6 +145,34 @@ class _Menu extends State<Menu> {
     );
   }
 
+  void showPosterDialog(BuildContext context, String value) {
+    showDialog(
+      context: context,
+      builder: (context) => PosterDialog(
+        value: value,
+      ),
+      barrierDismissible: true,
+    );
+  }
+
+  void showOperationsDialog(BuildContext context, String value) {
+    showDialog(
+      context: context,
+      builder: (context) => OperationsDialog(
+        value: value,
+      ),
+      barrierDismissible: true,
+    );
+  }
+
+  void showRunJsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => RunJsDialog(),
+      barrierDismissible: true,
+    );
+  }
+
   void showPreviewDialog(BuildContext context, String value) {
     showDialog(
       context: context,
@@ -175,7 +206,16 @@ class _Menu extends State<Menu> {
               canBeFavourite: true,
               isFavourite: item.isFavourite,
               onPressed: () {
-
+                switch(item.value) {
+                  case "Run - Run Javascript":
+                    showRunJsDialog(context);
+                    break;
+                  case "Poster - Split Large Page into Many Tiles":
+                    showPosterDialog(context, item.dialogOption??"");
+                    break;
+                  default:
+                    showOperationsDialog(context, item.dialogOption??"");
+                }
               },
               onPressedInfo: item.dialogOption != null ? () {
                 showGeneralDialog(context, item.dialogOption!);
@@ -247,7 +287,7 @@ class _Menu extends State<Menu> {
         Center(
           child: GeneralButton(value: "Upload",
             infoActive: false,
-            hasIcon: Icons.cloud_upload_rounded,
+            hasIcon: Icons.upload_file_rounded,
             onPressed: pickFile,
           ),
         ),
