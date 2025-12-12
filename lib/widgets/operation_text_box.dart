@@ -8,14 +8,18 @@ class OperationTextBox extends StatefulWidget {
   final String? hintText;
   final bool enabled;
   final int maxLines;
-  const OperationTextBox({super.key, required this.height, required this.width, this.enabled=true, this.hintText, this.maxLines = 1});
+  final bool readOnly;
+  final Widget? suffixIcon;
+  final void Function(String)? onChanged;
+  final TextEditingController operationController;
+  const OperationTextBox({super.key, required this.height, required this.width, this.enabled=true, this.hintText, this.maxLines = 1,
+    required this.operationController, this.onChanged, this.readOnly=false, this.suffixIcon});
 
   @override
   State<OperationTextBox> createState() => _OperationTextBox();
 }
 
 class _OperationTextBox extends State<OperationTextBox> {
-  TextEditingController _operationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +29,14 @@ class _OperationTextBox extends State<OperationTextBox> {
       width: widget.width,
       height: widget.height,
       child: TextFormField(
+        onChanged: widget.onChanged,
         enabled: widget.enabled,
-        controller: _operationController,
+        controller: widget.operationController,
         obscureText: false,
+        readOnly: widget.readOnly,
         maxLines: widget.maxLines,
         decoration: InputDecoration(
+          suffixIcon: widget.suffixIcon,
             border: OutlineInputBorder(
             ),
             hintText: widget.hintText,

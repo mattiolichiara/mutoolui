@@ -7,6 +7,8 @@ class Constants {
   static const rowSpacing = 0.007;
 
   static const cleanOptions = '''
+mutool clean [options] input.pdf [output.pdf] [pages]
+
 -p -    password
 -g      garbage collect unused objects
 -gg     in addition to -g compact xref table
@@ -45,6 +47,8 @@ pages   comma separated list of page numbers and ranges
 ''';
 
   static const convertOptions = '''
+  mutool convert [options] file [pages]
+  
 -p -    password
 
         -b -    use named page box (MediaBox, CropBox, BleedBox, TrimBox, or ArtBox)
@@ -191,6 +195,8 @@ SVG output options:
 ''';
 
   static const createOptions = '''
+  mutool create [-o output.pdf] [-O options] page.txt [page2.txt ...]
+  
    -o -    name of PDF file to create
         -O -    comma separated list of output options
         page.txt        content stream with annotations for creating resources
@@ -235,6 +241,7 @@ PDF output options:
         ''';
 
   static const drawOptions = '''
+        mutool draw [options] file [pages]
         -p -    password
 
         -o -    output file name (%d for page number)
@@ -304,6 +311,8 @@ PDF output options:
         ''';
 
   static const traceOptions = '''
+        mutool trace [options] file [pages]
+        
         -p -    password
 
         -W -    page width for EPUB layout
@@ -318,6 +327,8 @@ PDF output options:
         ''';
 
   static const extractOptions = '''
+        mutool extract [options] file.pdf [object numbers]
+        
         -p      password
         -r      convert images to rgb
         -a      embed SMasks as alpha channel
@@ -325,6 +336,8 @@ PDF output options:
         ''';
 
   static const infoOptions = '''
+        mutool info [options] file.pdf [pages]
+  
         -p -    password for decryption
         -F      list fonts
         -I      list images
@@ -337,6 +350,8 @@ PDF output options:
         ''';
 
   static const mergeOptions = '''
+  mutool merge [-o output.pdf] [-O options] input.pdf [pages] [input2.pdf] [pages2] ...
+  
         -o -    name of PDF file to create
         -O -    comma separated list of output options
         input.pdf       name of input file from which to copy pages
@@ -370,11 +385,15 @@ PDF output options:
         ''';
 
   static const pagesOptions = '''
+        mutool pages [options] file.pdf [pages]
+  
         -p -    password for decryption
         pages   comma separated list of page numbers and ranges
         ''';
 
   static const posterOptions = '''
+        mutool poster [options] input.pdf [output.pdf]
+        
         -p -    password
         -m -    margin (overlap) between pages (pts, or %)
         -x      x decimation factor
@@ -383,12 +402,16 @@ PDF output options:
     ''';
 
   static const recolorOptions = '''
+        mutool recolor [options] <input filename>
+  
         -c -    Output colorspace (gray(default), rgb, cmyk)
         -r      Remove OutputIntent(s)
         -o -    Output file
   ''';
 
   static const signOptions = '''
+        mutool sign [options] input.pdf [signature object numbers]
+  
         -p -    password
         -v      verify signature
         -c      clear signatures
@@ -398,6 +421,8 @@ PDF output options:
   ''';
 
   static const trimOptions = '''
+        mutool trim [options] <input filename>
+  
         -b -    Which box to trim to (MediaBox(default), CropBox, BleedBox, TrimBox, ArtBox)
         -m -    Add margins to box (+ve for inwards, -ve outwards).
                         <All> or <V>,<H> or <T>,<R>,<B>,<L>
@@ -407,12 +432,16 @@ PDF output options:
   ''';
 
   static const bakeOptions = '''
+        mutool bake [options] input.pdf [output.pdf]
+   
         -A      keep annotations
         -F      keep forms
         -O -    comma separated list of output options
   ''';
 
   static const showOptions = '''
+        mutool show [options] file.pdf ( trailer | xref | pages | grep | outline | js | form | <path> ) *
+  
         -p -    password
         -o -    output file
         -e      leave stream contents in their original form
@@ -427,10 +456,13 @@ PDF output options:
   ''';
 
   static const auditOptions = '''
+  mutool audit [options] input.pdf+
+  
       -o -    output file
       ''';
 
   static const barcodeOptions = '''
+        usage to decode: mutool barcode -d [options] input [pages]
         -p -    password for encrypted PDF files
         -o -    output file (default: stdout)
         -r -    rotation

@@ -43,6 +43,8 @@ class _PdfPreviewDialog extends State<PdfPreviewDialog> {
   //   //_loadPdfSize();
   // }@TODO ridimensionare il dialog dopo l'inserimento della password corretta + loading per evitare che si veda la finestra di fallback
   //@TODO gestire la password in modifica
+  //@TODO gestire la porcodio di responsiveness di TUTTO
+  //@TODO fixare il layout della madonna di cristo di password
 
   @override
   void dispose() {
@@ -67,7 +69,7 @@ class _PdfPreviewDialog extends State<PdfPreviewDialog> {
               obscureText = !obscureText;
             });
         },
-        icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off, color: Colors.white, size: size.width*Constants.iconsSize/1.3));
+        icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off, color: Colors.white, size: size.width*Constants.iconsSize/1.8));
   }
 
   Future<String?> _requestPasswordProvider() {
@@ -107,7 +109,7 @@ class _PdfPreviewDialog extends State<PdfPreviewDialog> {
     return Center(
       child: SizedBox(
         width: size.width*0.11,
-        height: size.height*0.16,
+        height: size.height*0.25,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +123,6 @@ class _PdfPreviewDialog extends State<PdfPreviewDialog> {
               obscureText: obscureText,
               decoration: InputDecoration(
                 border: UnderlineInputBorder(
-
                 ),
                 suffixIcon: eyecon(size),
                 hintStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.w300, fontSize: size.width * Constants.fontSize)),

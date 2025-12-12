@@ -53,13 +53,23 @@ class _Menu extends State<Menu> {
       MenuItem(value: "Sign - Manipulate PDF Digital Signatures", dialogOption: Constants.signOptions),
       MenuItem(value: "Trim - Trim PDF Page Contents", dialogOption: Constants.trimOptions),
       MenuItem(value: "Bake - Bake PDF Form into Static Content", dialogOption: Constants.bakeOptions),
-      MenuItem(value: "Run - Run Javascript", dialogOption: null, infoActive: false),
+      // MenuItem(value: "Run - Run Javascript", dialogOption: null, infoActive: false),
       MenuItem(value: "Show - Show Internal PDF Objects", dialogOption: Constants.showOptions),
       MenuItem(value: "Audit - Produce Usage Stats from PDF Files", dialogOption: Constants.auditOptions),
       MenuItem(value: "Barcode - Encode/Decode Barcodes", dialogOption: Constants.barcodeOptions),
     ];
     _orderedButtons = List.from(_allButtons);
     _loadAndRestoreFavorite();
+  }
+
+  String processString(String input) {
+    int firstSpaceIndex = input.indexOf(' ');
+    if (firstSpaceIndex == -1) {
+      return input.toLowerCase();
+    }
+
+    String subString = input.substring(0, firstSpaceIndex);
+    return subString.toLowerCase();
   }
 
   void errorSnackBar(String message) {
@@ -150,16 +160,19 @@ class _Menu extends State<Menu> {
       context: context,
       builder: (context) => PosterDialog(
         value: value,
+        filePath: _pdfPath ?? "",
       ),
       barrierDismissible: true,
     );
   }
 
-  void showOperationsDialog(BuildContext context, String value) {
+  void showOperationsDialog(BuildContext context, String value, String operationName) {
     showDialog(
       context: context,
       builder: (context) => OperationsDialog(
         value: value,
+        filePath: _pdfPath??"",
+        operationName: operationName,
       ),
       barrierDismissible: true,
     );
@@ -206,15 +219,22 @@ class _Menu extends State<Menu> {
               canBeFavourite: true,
               isFavourite: item.isFavourite,
               onPressed: () {
-                switch(item.value) {
-                  case "Run - Run Javascript":
-                    showRunJsDialog(context);
-                    break;
-                  case "Poster - Split Large Page into Many Tiles":
-                    showPosterDialog(context, item.dialogOption??"");
-                    break;
-                  default:
-                    showOperationsDialog(context, item.dialogOption??"");
+                if (_pdfPath != null) {
+                  switch (item.value) {
+                    case "Run - Run Javascript":
+                      showRunJsDialog(context);
+                      break;
+                    case "Poster - Split Large Page into Many Tiles":
+                      showPosterDialog(context, item.dialogOption ?? "");
+                      break;
+                    default:
+                      showOperationsDialog(
+                          context, item.dialogOption ?? "", processString(item
+                          .value));
+                  }
+                } else {
+                  errorSnackBar(
+                      "Input File Required");
                 }
               },
               onPressedInfo: item.dialogOption != null ? () {
@@ -312,7 +332,7 @@ class _Menu extends State<Menu> {
   Widget content(Size size) {
     return Column(
       children: [
-        SizedBox(height: size.width*Constants.spacing,),
+        SizedBox(height: size.width*Constants.spacing/2.5,),
         loadFile(size),
         SizedBox(height: size.width*Constants.spacing,),
         Center(
@@ -336,15 +356,15 @@ class _Menu extends State<Menu> {
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xff19283b),
-        title: Text("MuTool UI",
-          style: TextStyle(
-              color: Colors.white70,
-              fontWeight: FontWeight.w300,
-              fontSize: size.width * Constants.fontSize * 1.5
-          ),),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Color(0xff19283b),
+      //   title: Text("MuTool UI",
+      //     style: TextStyle(
+      //         color: Colors.white70,
+      //         fontWeight: FontWeight.w300,
+      //         fontSize: size.width * Constants.fontSize * 1.5
+      //     ),),
+      // ),
       body: DropTarget(
         onDragEntered: (drag) {
           setState(() {
